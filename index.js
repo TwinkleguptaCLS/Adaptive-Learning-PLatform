@@ -3,6 +3,10 @@ const path = require('path');
 const mongoose = require("mongoose")
 const bodyParser = require("body-parser")
 
+//importing models
+const Student = require('./student');
+const Teacher = require('./teacher')
+
 const app = express();
 const port = process.env.PORT || 5000;
 

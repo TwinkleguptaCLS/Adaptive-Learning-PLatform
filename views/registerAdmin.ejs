@@ -23,10 +23,10 @@
         <section class="clean-block clean-form dark">
             <div class="container">
                 <div class="block-heading">
-                    <h2 class="text-info">Registration Teacher</h2>
+                    <h2 class="text-info">Teacher Registration</h2>
                     <!-- <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nunc quam urna, dignissim nec auctor in, mattis vitae leo.</p> -->
                 </div>
-                <div style="margin: 0 auto;" class="col-12 col-md-6 col-lg-5 p-5 customborder">
+                <div style="margin: 0 auto; padding:0;" class="col-12 col-md-6 col-lg-5 p-5 customborder">
                     <form action="/registerAdmin" method="POST">
                         <% if(typeof err != 'undefined') {%>
                             <div class="alert alert-dismissible alert-danger">
@@ -61,13 +61,9 @@
         </section>
     </main>
 
-    <footer class="page-footer dark">
-        <div class="footer-copyright">
-            <p>© 2020 Copyright &middot;
-                <a href="https://github.com/Twinkle0799">Twinkle0799 </a>
-            </p>
-        </div>
-    </footer>
+    <footer>
+        <%- include('./partials/footer'); %>
+      </footer>
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/4.1.1/js/bootstrap.bundle.min.js"></script>

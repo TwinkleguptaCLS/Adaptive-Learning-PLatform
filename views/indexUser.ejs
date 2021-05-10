@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <%- include('./partials/head'); %>
+</head>
+<body>
+
+<header>
+  <%- include('./partials/header'); %>
+</header>
+
+<main class="page landing-page">
+
+    <section class="clean-block clean-info dark">
+        <div class="container">
+
+            <div class="block-heading">
+                <h2>Welcome USER
+                </h2>
+                <br>
+                <p>Save Moment To Cherish Later!</p>
+            </div>
+            <div class="col-md-8 clean-pricing-item" style="margin: auto; text-align: center;">
+                <% if (success_message != ''){ %>
+                    <div class="alert alert-dismissible alert-success">
+                        <button type="button" class="close" data-dismiss="alert">&times;</button>
+                        <strong> <%= success_message %> </strong>
+                    </div>
+                    <% } %>
+                        <% if(error != '') {%>
+                            <div class="alert alert-dismissible alert-danger">
+                                <button type="button" class="close" data-dismiss="alert">&times;</button>
+                                <strong> <%= error %> </strong>
+                            </div>
+                            <%}%>
+                                <div class="features ">
+                                    <div class="form-group" style="text-align: center;"><label for="message"><h4><span class="feature">Enter the Message:</h4></label><input class="form-control item" type="text" id="caption" placeholder="Give Words to the Momet!"></div>
+                                    <div class="form-group"><button class="btn btn-primary btn-block" id="geolocate" type="button">Save the Message</button></div>
+
+                                </div>
+            </div>
+
+
+
+
+
+
+        </div>
+    </section>
+
+
+
+
+</main>
+
+<footer>
+  <%- include('./partials/footer'); %>
+</footer>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/4.1.1/js/bootstrap.bundle.min.js"></script>
+
+</body>
+</html>

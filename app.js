@@ -142,7 +142,7 @@ else{
         username,
         rollno,
         password,
-        password2
+        confirmpassword
       });
 }
 })

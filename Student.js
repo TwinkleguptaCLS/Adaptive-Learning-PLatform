@@ -1,6 +1,6 @@
-const mongoose = require('mongoose');
+const mongoose  = require('mongoose')
 
-const teacherSchema = new mongoose.Schema({
+const StudentSchema = new mongoose.Schema({
     email:{
         type:String,
         required:true
@@ -17,10 +17,10 @@ const teacherSchema = new mongoose.Schema({
         type:String,
         required:true
     },
-    coursequiz : [{
+    data : [{
         type:mongoose.Schema.Types.ObjectId,
-        ref:"coursequiz"
+        ref:"data"
     }]
 })
 
-module.exports = new mongoose.model('teacher',teacherSchema);
+module.exports =  new mongoose.model('Student',StudentSchema);

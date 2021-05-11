@@ -12,8 +12,8 @@ const flash = require('connect-flash');
 const passport = require('passport');
 const localStrategy = require('passport-local').Strategy;
 //importing models
-const Student = require('./student');
-const Teacher = require('./teacher')
+const Student = require('./Student');
+const Teacher = require('./Teacher');
 
 const app = express();
 const port = process.env.PORT || 5000;
@@ -57,7 +57,9 @@ app.set('views',path.join(__dirname,'views'));
 //app.use(expressLayouts);
 app.set('view engine','ejs');
 
-app.use(bodyParser.urlencoded({ extended : false }));
+app.use(express.urlencoded({ extended : false }));
+app.use(bodyParser.json());
+
 
 
 //setting up public folder
@@ -69,8 +71,9 @@ app.use('/public', express.static('public'));
 // })
 
 //mongoose connection
+const db = require('./keys').MONGOURI;
 var mongoDB = 'mongodb://localhost/Navigus';
-mongoose.connect(process.env.MONGODB_URI || mongoDB,{
+mongoose.connect( db,{
     useNewUrlParser:true,
     useUnifiedTopology:true
 }).then(()=> console.log('Database connected'));
@@ -86,25 +89,26 @@ app.get('/registerAdmin', async(req, res) => {
     res.render('registerAdmin')
 })
 // Register admin
-app.post('/registerAdmin', async(req, res) => {
-var { email, roll, username, password, confirmpassword } = req.body;
+app.post('/registerAdmin', async(req, res) =>
+ {
+const { email, rollno, username, password, confirmpassword } = req.body;
 var err;
 
 // if any field is empty
-if (!email || !roll || !username || !password || !confirmpassword) {
-    err = 'Please fill all details!'
+if (!email || !rollno || !username || !password || !confirmpassword) {
+    err = 'Please fill all the details!';
     res.render('registerAdmin', { 'err': err });
 }
 
 // if password doesn't match
 if (password != confirmpassword) {
     err = 'Passwords Don\'t match!'
-    res.render('registerAdmin', { 'err': err, 'email': email, 'roll': roll, 'username': username });
+    res.render('registerAdmin', { 'err': err, 'email': email, 'rollno': rollno, 'username': username });
 }
 
 // if everything is fine then check for exiting email in db
 if (typeof err == 'undefined') {
-    const check = await Teacher.exists({ roll: req.body.roll })
+    const check = await Teacher.exists({ rollno: req.body.rollno })
     if (check == false) {
         bcrypt.genSalt(10, async(err, salt) => {
             if (err) throw err;
@@ -116,7 +120,7 @@ if (typeof err == 'undefined') {
                 await Teacher.create({
                     email,
                     username,
-                    roll,
+                    rollno,
                     password
                 })
                 req.flash('success_message', "Teacher Registered Successfully.. Login To Continue..");
@@ -125,7 +129,7 @@ if (typeof err == 'undefined') {
         });
     } else {
         console.log('user exists')
-        err = 'Teacher with this roll number already exists!'
+        err = 'Teacher with this rollno number already exists!'
         res.render('registerAdmin', { 'err': err });
     }
 
@@ -138,11 +142,11 @@ app.get('/registerUser', async(req, res) => {
 
 // Register user
 app.post('/registerUser', async(req, res) => {
-    var { email, username, roll, password, confirmpassword } = req.body;
+    var { email, username, rollno, password, confirmpassword } = req.body;
     var err;
 
     // if any field is empty
-    if (!email || !username || !roll || !password || !confirmpassword) {
+    if (!email || !username || !rollno || !password || !confirmpassword) {
         err = 'Please fill all details!'
         res.render('registerUser', { 'err': err });
     }
@@ -150,12 +154,12 @@ app.post('/registerUser', async(req, res) => {
     // if password doesn't match
     if (password != confirmpassword) {
         err = 'Passwords Don\'t match!'
-        res.render('registerUser', { 'err': err, 'email': email, 'roll': roll, 'username': username });
+        res.render('registerUser', { 'err': err, 'email': email, 'rollno': rollno, 'username': username });
     }
 
     // if everything is fine then check for exiting email in db
     if (typeof err == 'undefined') {
-        const check = await Student.exists({ roll: req.body.roll })
+        const check = await Student.exists({ rollno: req.body.rollno })
         if (check == false) {
             bcrypt.genSalt(10, async(err, salt) => {
                 if (err) throw err;
@@ -167,7 +171,7 @@ app.post('/registerUser', async(req, res) => {
                     await Student.create({
                         email,
                         username,
-                        roll,
+                        rollno,
                         password
                     })
                     req.flash('success_message', "Registered Successfully.. Login To Continue..");
@@ -176,7 +180,7 @@ app.post('/registerUser', async(req, res) => {
             });
         } else {
             console.log('user exists')
-            err = 'User with this roll number already exists!'
+            err = 'User with this rollno number already exists!'
             res.render('registerUser', { 'err': err });
         }
 
@@ -201,9 +205,9 @@ passport.deserializeUser(function(id,cb){
     })
 })
 
-passport.use('localTeacher', new localStrategy({ usernameField: 'roll' }, async(roll, password, done) => {
+passport.use('localTeacher', new localStrategy({ usernameField: 'rollno' }, async(rollno, password, done) => {
 
-    Teacher.findOne({ roll: roll }, async(err, data) => {
+    Teacher.findOne({ rollno: rollno }, async(err, data) => {
         if (err) throw err;
         if (!data) {
             return done(null, false, { message: "User Doesn't Exists.." });
@@ -223,9 +227,9 @@ passport.use('localTeacher', new localStrategy({ usernameField: 'roll' }, async(
     });
 }));
 
-passport.use('localUser', new localStrategy({ usernameField: 'roll' }, async(roll, password, done) => {
+passport.use('localUser', new localStrategy({ usernameField: 'rollno' }, async(rollno, password, done) => {
 
-    User.findOne({ roll: roll }, async(err, data) => {
+    User.findOne({ rollno: rollno }, async(err, data) => {
         if (err) throw err;
         if (!data) {
             return done(null, false, { message: "User Doesn't Exists.." });
@@ -275,33 +279,29 @@ app.post('/loginUser', (req, res, next) => {
 
 // Success route admin
 app.get('/indexAdmin', checkAuthenticated, async(req, res) => {
-    res.render('indexAdmin', { 'teacher': req.teacher });
+    res.render('indexAdmin', { 'teacher': req.Student });
 });
 
 // Success route user
 app.get('/indexUser', checkAuthenticated, async(req, res) => {
-    res.render('indexUser', { 'user': req.user });
+    res.render('indexUser', { 'user': req.Student });
 });
 
-app.get('/api', checkAuthenticated, async(req, res) => {
-    user.findById(req.user._id).populate("data").exec(async(error, foundUser) => {
-        if (error) {
-            console.log(error);
-            return res.redirect('/404')
-        }
 
-        if (!foundUser) {
-            console.log("Api url does not exist");
-            return res.redirect('/404')
-        }
-        // res.send( {'slots': foundUser.slots})
-        // res.render('allslots', { 'user': foundUser.username, 'uid': foundUser._id, 'data': foundUser.data })
-        res.send({ 'user': foundUser.username, 'uid': foundUser._id, 'data': foundUser.data })
-    });
 
+//course route
+app.get('/createCourse',checkAuthenticated,async(req,res)=>{
+    res.render('createCourse',{'Teacher':req.Teacher})
 })
-
-
+app.post('/createCourse', checkAuthenticated, async(req, res) => {
+    const info = req.body;
+    console.log(req.body)
+    console.log(req.Student)
+const newCourse = await new coursequiz({
+        coursename: info.coursename,
+        coursecode: info.coursecode,
+        minmarks: info.minmarks
+});})
 // Logout route
 app.get('/logout', async(req, res) => {
     req.logout();

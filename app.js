@@ -73,9 +73,9 @@ app.use('/public', express.static('public'));
 // })
 
 //mongoose connection
-const db = require('./keys').MONGOURI;
+// const db = require('./keys').MONGOURI;
 var mongoDB = 'mongodb://localhost/Navigus';
-mongoose.connect( db,{
+mongoose.connect( process.env.mongoDBURI|| mongoDB,{
     useNewUrlParser:true,
     useUnifiedTopology:true
 }).then(()=> console.log('Database connected'));

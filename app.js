@@ -4,7 +4,7 @@ const mongoose = require("mongoose")
 const bodyParser = require("body-parser")
 const expressLayouts = require('express-ejs-layouts');
 const {response} = require('express');
-const bcrypt = require('bcrypt');
+const bcrypt = require('bcryptjs');
 const session = require('express-session');
 const flash = require('connect-flash');
 
@@ -18,16 +18,18 @@ const Teacher = require('./Teacher');
 const app = express();
 const port = process.env.PORT || 5000;
 
-//authentication
-app.use(passport.initialize());
-app.use(passport.session());
+
 
 
 
 app.use(session({
-    secret: 'woot',
+    secret: 'secret',
     resave: true, 
     saveUninitialized: true}));
+
+//authentication
+app.use(passport.initialize());
+app.use(passport.session());
 
 app.use(flash());
 
@@ -58,7 +60,7 @@ app.set('views',path.join(__dirname,'views'));
 app.set('view engine','ejs');
 
 app.use(express.urlencoded({ extended : false }));
-app.use(bodyParser.json());
+app.use(bodyParser.json())
 
 
 
@@ -89,25 +91,25 @@ app.get('/registerAdmin', async(req, res) => {
     res.render('registerAdmin')
 })
 // Register admin
-app.post('/registerAdmin', async(req, res) =>
- {
-const { email, rollno, username, password, confirmpassword } = req.body;
+app.post('/registerAdmin', async(req, res) => {
+var { email, rollno, username, password, confirmpassword } = req.body;
 var err;
 
 // if any field is empty
 if (!email || !rollno || !username || !password || !confirmpassword) {
     err = 'Please fill all the details!';
-    res.render('registerAdmin', { 'err': err });
 }
 
 // if password doesn't match
 if (password != confirmpassword) {
     err = 'Passwords Don\'t match!'
-    res.render('registerAdmin', { 'err': err, 'email': email, 'rollno': rollno, 'username': username });
+}
+if (password.length < 6) {
+    err = 'Password must be at least 6 characters';
 }
 
-// if everything is fine then check for exiting email in db
-if (typeof err == 'undefined') {
+if (typeof err == 'undefined') 
+{
     const check = await Teacher.exists({ rollno: req.body.rollno })
     if (check == false) {
         bcrypt.genSalt(10, async(err, salt) => {
@@ -120,21 +122,31 @@ if (typeof err == 'undefined') {
                 await Teacher.create({
                     email,
                     username,
-                    rollno,
+                    roll,
                     password
                 })
                 req.flash('success_message', "Teacher Registered Successfully.. Login To Continue..");
-                return res.redirect('loginAdmin');
+                res.redirect('/loginAdmin');
             });
         });
     } else {
         console.log('user exists')
-        err = 'Teacher with this rollno number already exists!'
+        err = 'Teacher with this roll number already exists!'
         res.render('registerAdmin', { 'err': err });
     }
-
+}
+else{
+    res.render('registerAdmin', {
+        err,
+        email,
+        username,
+        rollno,
+        password,
+        password2
+      });
 }
 })
+
 
 app.get('/registerUser', async(req, res) => {
     res.render('registerUser')
